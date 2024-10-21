@@ -1,0 +1,13 @@
+python debug.py \
+    --train_data_path data/train.json \
+    --tokenizer_path models/vocab.txt \
+    --output_dir models/debug \
+    --overwrite_output_dir True \
+    --save_strategy epoch \
+    --save_only_model True \
+    --eval_strategy epoch \
+    --logging_strategy steps \
+    --logging_steps 1 \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 2 \
+    --gradient_accumulation_steps 4 \
