@@ -13,6 +13,7 @@ A recommended project directory structures as following:
 ├── models
 │   ├── debug
 │   └── vocab.txt
+├── wandb
 └── train.py
 ```
 

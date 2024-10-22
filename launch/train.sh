@@ -12,3 +12,5 @@ python train.py \
     --num_train_epochs 1 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 4 \
+    --logging_dir logs/train_log \
+    --logging_steps 10\

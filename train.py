@@ -5,6 +5,7 @@ from transformers import GPT2Config, GPT2LMHeadModel, BertTokenizer, Trainer, Tr
 from torch.utils.data import Dataset
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
+import wandb
 
 
 @dataclass
@@ -48,6 +49,25 @@ class DataCollatorPaddingToMax:
             'labels': torch.nn.utils.rnn.pad_sequence([f['labels'] for f in features], batch_first=True, padding_value=-100)
         }
 
+class MyTrainWithDataInWB(Trainer):
+    def compute_metrics(self, eval_pred):
+        logits, label = eval_pred
+        predictions = logits.argmax(axis=-1)
+
+        accuracy = (predictions == labels).mean()
+
+        wandb.log({"accuracy":accuracy})
+
+        return {"accuracy":accuracy}
+
+wandb.init(
+    project="GM-2024-LM",
+    name="yaoyixun_try",
+    # track hyperpaameters and run metadata
+    config={
+        "n_position":2024,
+    }
+)
 
 parser = HfArgumentParser((TrainingArguments, ModelArguments, DataArguments))
 training_args, model_args, data_args = parser.parse_args_into_dataclasses()
@@ -82,7 +102,7 @@ train_dataset = MyDataset(tokenizer, data_args.train_data_path, 1024)
 eval_dataset = MyDataset(tokenizer, data_args.eval_data_path, 1024)
 collator = DataCollatorPaddingToMax(tokenizer)
 # Train!
-trainer = Trainer(
+trainer = MyTrainWithDataInWB(
     model=model,
     args=training_args,
     tokenizer=tokenizer,
@@ -91,5 +111,7 @@ trainer = Trainer(
     eval_dataset=eval_dataset,
 )
 trainer.train()
+
+wandb.finish()
 
 trainer.save_model()
