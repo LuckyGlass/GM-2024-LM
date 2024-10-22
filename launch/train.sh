@@ -1,5 +1,6 @@
-python debug.py \
+python train.py \
     --train_data_path data/train.json \
+    --eval_data_path data/test.json \
     --tokenizer_path models/vocab.txt \
     --output_dir models/debug \
     --overwrite_output_dir True \

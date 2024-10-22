@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 @dataclass
 class DataArguments:
     train_data_path: Optional[str] = field(default=None, metadata={'help': "The path to the training dataset (json) file."})
+    eval_data_path: Optional[str] = field(default=None, metadata={'help': "The path to the eval dataset file."})
 
 
 @dataclass
@@ -78,6 +79,7 @@ print(f"#parameters = {num_parameters}")
 print(model)
 # Load the dataset
 train_dataset = MyDataset(tokenizer, data_args.train_data_path, 1024)
+eval_dataset = MyDataset(tokenizer, data_args.eval_data_path, 1024)
 collator = DataCollatorPaddingToMax(tokenizer)
 # Train!
 trainer = Trainer(
@@ -86,5 +88,8 @@ trainer = Trainer(
     tokenizer=tokenizer,
     data_collator=collator,
     train_dataset=train_dataset,
+    eval_dataset=eval_dataset,
 )
 trainer.train()
+
+trainer.save_model()
