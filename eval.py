@@ -16,12 +16,20 @@ tokenizer.add_special_tokens(
 # 将模型设置为评估模式
 model.eval()
 
+# 设置填充标记 ID
+model.config.pad_token_id = tokenizer.pad_token_id
+
+
 input_text = "我"
 input_ids = tokenizer.encode(input_text, return_tensors='pt')
+
+# 创建 attention_mask
+attention_mask = (input_ids != tokenizer.pad_token_id).long()
 
 # 生成文本
 output = model.generate(
     input_ids,
+    attention_mask=attention_mask,
     max_length=50,  # 输出文本的最大长度
     num_return_sequences=1,  # 返回的文本数量
     no_repeat_ngram_size=2,  # 避免重复的n-gram
