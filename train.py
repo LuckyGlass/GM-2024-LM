@@ -54,7 +54,7 @@ class MyTrainWithDataInWB(Trainer):
         logits, label = eval_pred
         predictions = logits.argmax(axis=-1)
 
-        accuracy = (predictions == labels).mean()
+        accuracy = (predictions == label).mean()
 
         wandb.log({"accuracy":accuracy})
 
