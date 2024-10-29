@@ -17,6 +17,11 @@ class DataArguments:
 @dataclass
 class ModelArguments:
     tokenizer_path: Optional[str] = field(default=None, metadata={'help': "The path to the vacobulary file."})
+    n_embd: int = field(default=504)
+    n_layer: int = field(default=12)
+    n_head: int = field(default=12)
+    p_dropout: float = field(default=0.1)
+    activation_function: str = field(default='gelu_new')
 
 
 class MyDataset(Dataset):
@@ -85,13 +90,16 @@ tokenizer.add_special_tokens(
 config = GPT2Config(
     vocab_size=tokenizer.vocab_size + 1,  # It's very annoying that BertTokenizer assign values starting from 1...
     n_positions=1024,
-    n_embd=504,  # n_embd must be divided by n_head, adopt a smaller value to control the size of the model
-    n_layer=12,  # default value
-    n_head=12,  # default value
+    n_embd=model_args.n_embd,  # n_embd must be divided by n_head, adopt a smaller value to control the size of the model
+    n_layer=model_args.n_layer,
+    n_head=model_args.n_head,
     # n_inner is set to the empirical value, 4 * n_emb
-    activation_function='gelu_new',  # default value
+    activation_function=model_args.activation_function,  # default value
     bos_token_id=tokenizer.bos_token_id,
     eos_token_id=tokenizer.eos_token_id,
+    resid_pdrop=model_args.p_dropout,
+    embd_pdrop=model_args.p_dropout,
+    attn_pdrop=model_args.p_dropout,
 )
 model = GPT2LMHeadModel(config)  # It's initialized based on the default hyperparameters in the config.
 num_parameters = sum(p.numel() for p in model.parameters())
