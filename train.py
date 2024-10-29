@@ -65,14 +65,6 @@ class MyTrainWithDataInWB(Trainer):
 
         return {"accuracy":accuracy}
 
-wandb.init(
-    project="GM-2024-LM",
-    name="yaoyixun_try",
-    # track hyperpaameters and run metadata
-    config={
-        "n_position":2024,
-    }
-)
 
 parser = HfArgumentParser((TrainingArguments, ModelArguments, DataArguments))
 training_args, model_args, data_args = parser.parse_args_into_dataclasses()
@@ -86,6 +78,21 @@ tokenizer.add_special_tokens(
      "unk_token": "[UNK]",
      "bos_token": '[BOS]',
      "eos_token": '[EOS]'})
+# Init wandb
+wandb.init(
+    project="GM-2024-LM",
+    name="yaoyixun_try",
+    # track hyperpaameters and run metadata
+    config={
+        'n_embd': model_args.n_embd,
+        'n_layer': model_args.n_layer,
+        'n_head': model_args.n_head,
+        'p_dropout': model_args.p_dropout,
+        'activation_function': model_args.activation_function,
+        'batch_size': torch.cuda.device_count() * training_args.per_device_train_batch_size * training_args.gradient_accumulation_steps,
+        'learning_rate': training_args.learning_rate,
+    }
+)
 # Load the GPT2 architecture
 config = GPT2Config(
     vocab_size=tokenizer.vocab_size + 1,  # It's very annoying that BertTokenizer assign values starting from 1...
