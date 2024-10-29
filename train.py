@@ -89,6 +89,7 @@ if logging_args.project is not None:
     wandb.login(key=os.environ['WANDB_API_KEY'])
     wandb.init(
         project=logging_args.project,
+        name=training_args.run_name,
         # track hyperpaameters and run metadata
         config={
             'n_embd': model_args.n_embd,
