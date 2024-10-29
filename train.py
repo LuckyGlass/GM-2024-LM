@@ -6,6 +6,12 @@ from torch.utils.data import Dataset
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 import wandb
+import os
+
+
+@dataclass
+class LoggingArguments:
+    project: Optional[str] = field(default=None)
 
 
 @dataclass
@@ -66,8 +72,8 @@ class MyTrainWithDataInWB(Trainer):
         return {"accuracy":accuracy}
 
 
-parser = HfArgumentParser((TrainingArguments, ModelArguments, DataArguments))
-training_args, model_args, data_args = parser.parse_args_into_dataclasses()
+parser = HfArgumentParser((TrainingArguments, ModelArguments, DataArguments, LoggingArguments))
+training_args, model_args, data_args, logging_args = parser.parse_args_into_dataclasses()
 # Load the tokenizer
 tokenizer = BertTokenizer(vocab_file=model_args.tokenizer_path)
 tokenizer.add_special_tokens(
@@ -79,20 +85,23 @@ tokenizer.add_special_tokens(
      "bos_token": '[BOS]',
      "eos_token": '[EOS]'})
 # Init wandb
-wandb.init(
-    project="GM-2024-LM",
-    name="yaoyixun_try",
-    # track hyperpaameters and run metadata
-    config={
-        'n_embd': model_args.n_embd,
-        'n_layer': model_args.n_layer,
-        'n_head': model_args.n_head,
-        'p_dropout': model_args.p_dropout,
-        'activation_function': model_args.activation_function,
-        'batch_size': torch.cuda.device_count() * training_args.per_device_train_batch_size * training_args.gradient_accumulation_steps,
-        'learning_rate': training_args.learning_rate,
-    }
-)
+if logging_args.project is not None:
+    wandb.login(key=os.environ['WANDB_API_KEY'])
+    wandb.init(
+        project=logging_args.project,
+        # track hyperpaameters and run metadata
+        config={
+            'n_embd': model_args.n_embd,
+            'n_layer': model_args.n_layer,
+            'n_head': model_args.n_head,
+            'p_dropout': model_args.p_dropout,
+            'activation_function': model_args.activation_function,
+            'batch_size': torch.cuda.device_count() * training_args.per_device_train_batch_size * training_args.gradient_accumulation_steps,
+            'learning_rate': training_args.learning_rate,
+        }
+    )
+else:
+    assert training_args.report_to == 'none', "training_args.report_to is not \'none\' but no --project is provided."
 # Load the GPT2 architecture
 config = GPT2Config(
     vocab_size=tokenizer.vocab_size + 1,  # It's very annoying that BertTokenizer assign values starting from 1...
