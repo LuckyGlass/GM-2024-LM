@@ -1,0 +1,23 @@
+python train.py \
+    --report_to wandb \
+    --project GM2024-HW1 \
+    --run_name tune-case2 \
+    --train_data_path data/train_split.json \
+    --eval_data_path data/dev_split.json \
+    --tokenizer_path models/vocab.txt \
+    --output_dir models/batch-32 \
+    --overwrite_output_dir True \
+    --save_strategy epoch \
+    --save_only_model True \
+    --eval_strategy epoch \
+    --logging_strategy steps \
+    --logging_steps 1 \
+    --num_train_epochs 3 \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 8 \
+    --logging_dir logs/train_log \
+    --logging_steps 4 \
+    --learning_rate 1e-4 \
+    --n_embd 612 \
+    --n_layer 8 \
+    --n_head 12
